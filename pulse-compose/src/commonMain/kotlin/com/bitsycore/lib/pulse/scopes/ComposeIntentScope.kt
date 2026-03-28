@@ -5,7 +5,6 @@ class ComposeIntentScope<INTENT>(
 ) {
 	internal var onEnter: (() -> Unit)? = null
 	internal var onExit: (() -> Unit)? = null
-	internal var onRecompose: (() -> Unit)? = null
 
 	fun onEnter(block: () -> INTENT) {
 		onEnter = { dispatcher(block()) }
@@ -13,9 +12,5 @@ class ComposeIntentScope<INTENT>(
 
 	fun onExit(block: () -> INTENT) {
 		onExit = { dispatcher(block()) }
-	}
-
-	fun onRecompose(block: () -> INTENT) {
-		onRecompose = { dispatcher(block()) }
 	}
 }

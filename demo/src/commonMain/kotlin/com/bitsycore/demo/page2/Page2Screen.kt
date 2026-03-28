@@ -41,7 +41,6 @@ fun Page2Screen(
 
 	viewModel.onCompositionIntent {
 		onEnter { Page2Contract.Intent.OnScreenEntered }
-		onRecompose { Page2Contract.Intent.OnScreenRecomposed }
 		onExit { Page2Contract.Intent.OnScreenExited }
 	}
 

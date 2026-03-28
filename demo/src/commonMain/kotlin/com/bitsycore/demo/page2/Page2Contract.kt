@@ -24,7 +24,6 @@ object Page2Contract : ContainerContract<Page2Contract.UiState, Page2Contract.In
 
 		// Composition-driven
 		data object OnScreenEntered : Intent
-		data object OnScreenRecomposed : Intent
 		data object OnScreenExited : Intent
 	}
 

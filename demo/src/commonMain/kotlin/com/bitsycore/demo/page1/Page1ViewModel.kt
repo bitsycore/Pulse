@@ -24,7 +24,6 @@ class Page1ViewModel : Page1Contract.VM(Page1Contract) {
 		Intent.OnPaused,
 		Intent.OnStopped,
 		Intent.OnDestroyed,
-		Intent.OnScreenRecomposed,
 		Intent.OnScreenExited -> state
 	}
 
@@ -45,7 +44,6 @@ class Page1ViewModel : Page1Contract.VM(Page1Contract) {
 
 			// Log all composition events
 			Intent.OnScreenEntered -> println("[Page1][Composition] onEnter")
-			Intent.OnScreenRecomposed -> println("[Page1][Composition] onRecompose")
 			Intent.OnScreenExited -> println("[Page1][Composition] onExit")
 
 			else -> {}

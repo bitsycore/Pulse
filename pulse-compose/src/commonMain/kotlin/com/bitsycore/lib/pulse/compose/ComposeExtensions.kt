@@ -90,14 +90,11 @@ fun <STATE : Any, INTENT : Any, EFFECT : Any> ContainerHost<STATE, INTENT, EFFEC
 
 	scope.onEnter = null
 	scope.onExit = null
-	scope.onRecompose = null
 	scope.mapper()
 
 	// Capture into stable refs so the effects always exist
 	val enterRef = rememberUpdatedState(scope.onEnter)
 	val exitRef = rememberUpdatedState(scope.onExit)
-
-	scope.onRecompose?.invoke()
 
 	// Always composed — unconditional
 	LaunchedEffect(key1, *keys) {

@@ -22,7 +22,6 @@ class Page2ViewModel : Page2Contract.VM(Page2Contract) {
 
 			// Log all composition events
 			Intent.OnScreenEntered -> println("[Page2][Composition] onEnter")
-			Intent.OnScreenRecomposed -> println("[Page2][Composition] onRecompose")
 			Intent.OnScreenExited -> println("[Page2][Composition] onExit")
 		}
 	}

@@ -45,10 +45,9 @@ fun Page1Screen(
 		onDestroy { Page1Contract.Intent.OnDestroyed }
 	}
 
-	// Composition intents — fires when this composable enters/recomposes/exits the tree
+	// Composition intents — fires when this composable enters/exits the tree
 	viewModel.onCompositionIntent {
 		onEnter { Page1Contract.Intent.OnScreenEntered }
-		onRecompose { Page1Contract.Intent.OnScreenRecomposed }
 		onExit { Page1Contract.Intent.OnScreenExited }
 	}
 
