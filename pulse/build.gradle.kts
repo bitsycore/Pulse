@@ -37,13 +37,7 @@ kotlin {
 	linuxX64()
 
 	// Windows
-	mingwX64 {
-		binaries {
-			staticLib {
-
-			}
-		}
-	}
+	mingwX64()
 
 	// watchOS
 	watchosArm64()
