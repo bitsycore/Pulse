@@ -18,6 +18,20 @@ object Page1Contract : ContainerContract<Page1Contract.UiState, Page1Contract.In
 		val colorPicker: ColorPickerComponent.State = ColorPickerComponent.initialState,
 	)
 
+	override fun reduce(state: UiState, intent: Intent): UiState = when (intent) {
+		Intent.Increment -> state.copy(count = state.count + 1)
+		Intent.Decrement -> state.copy(count = state.count - 1)
+		Intent.Reset -> state.copy(count = 0)
+		is Intent.ColorPicker -> state.copy(
+			colorPicker = ColorPickerComponent.reduce(state.colorPicker, intent.intent)
+		)
+		// Composition: randomize color when entering the screen
+		Intent.OnScreenEntered -> state.copy(
+			colorPicker = ColorPickerComponent.reduce(state.colorPicker, ColorPickerComponent.Intent.Randomize)
+		)
+		else -> state
+	}
+
 	sealed interface Intent {
 		data object Increment : Intent
 		data object Decrement : Intent

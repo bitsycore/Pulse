@@ -15,6 +15,13 @@ object Page2Contract : ContainerContract<Page2Contract.UiState, Page2Contract.In
 		val message: String = "Hello from Page 2",
 	)
 
+	override fun reduce(state: UiState, intent: Intent): UiState {
+		return when (intent) {
+			is Intent.Tick -> state.copy(count = state.count + 1)
+			else -> state
+		}
+	}
+
 	sealed interface Intent {
 
 		// Lifecycle-driven

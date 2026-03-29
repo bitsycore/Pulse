@@ -4,13 +4,6 @@ import androidx.lifecycle.Lifecycle
 
 class Page2ViewModel : Page2Contract.VM(Page2Contract) {
 
-	override fun reduce(state: Page2Contract.UiState, intent: Page2Contract.Intent): Page2Contract.UiState {
-		return when (intent) {
-            is Page2Contract.Intent.Tick -> state.copy(count = state.count + 1)
-            else -> state
-        }
-    }
-
 	override suspend fun handleIntent(intent: Page2Contract.Intent) {
 		when (intent) {
 			// Log all lifecycle events

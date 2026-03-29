@@ -22,4 +22,5 @@ package com.bitsycore.lib.pulse.container
  */
 abstract class ContainerContract<STATE : Any, INTENT : Any, EFFECT : Any> {
 	abstract val initialState: STATE
+	open fun reduce(state: STATE, intent: INTENT): STATE = state
 }

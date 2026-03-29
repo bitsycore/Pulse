@@ -2,28 +2,12 @@ package com.bitsycore.demo.pulse.page1
 
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
-import com.bitsycore.demo.pulse.colorpicker.ColorPickerComponent
 
 class Page1ViewModel(savedStateHandle: SavedStateHandle) : Page1Contract.VM(
 	containerContract = Page1Contract,
 	savedStateHandle = savedStateHandle,
 	serializer = Page1Contract.UiState.serializer()
 ) {
-
-	override fun reduce(state: Page1Contract.UiState, intent: Page1Contract.Intent): Page1Contract.UiState = when (intent) {
-		Page1Contract.Intent.Increment -> state.copy(count = state.count + 1)
-		Page1Contract.Intent.Decrement -> state.copy(count = state.count - 1)
-		Page1Contract.Intent.Reset -> state.copy(count = 0)
-		is Page1Contract.Intent.ColorPicker -> state.copy(
-			colorPicker = ColorPickerComponent.reduce(state.colorPicker, intent.intent)
-		)
-		// Composition: randomize color when entering the screen
-		Page1Contract.Intent.OnScreenEntered -> state.copy(
-			colorPicker = ColorPickerComponent.reduce(state.colorPicker, ColorPickerComponent.Intent.Randomize)
-		)
-		is Page1Contract.Intent.OnLifecycle,
-		Page1Contract.Intent.OnScreenExited -> state
-	}
 
 	override suspend fun handleIntent(intent: Page1Contract.Intent) {
 		when (intent) {

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlin.time.Duration
 
 abstract class PulseViewModel<STATE : Any, INTENT : Any, EFFECT : Any>(
-	containerContract: ContainerContract<STATE, INTENT, EFFECT>,
+	val containerContract: ContainerContract<STATE, INTENT, EFFECT>,
 	replayUnconsumed: Int = 4,
 	restoredState: STATE? = null
 ) : ViewModel(), ContainerHost<STATE, INTENT, EFFECT> {
@@ -30,7 +30,7 @@ abstract class PulseViewModel<STATE : Any, INTENT : Any, EFFECT : Any>(
 	override fun dispatchDebounced(intent: INTENT, delay: Duration, key: String?, skipIfUnchanged: Boolean, shareAcrossTypes: Boolean) =
 		container.dispatchDebounced(intent, delay, key, skipIfUnchanged, shareAcrossTypes)
 
-	protected open fun reduce(state: STATE, intent: INTENT): STATE = state
+	protected open fun reduce(state: STATE, intent: INTENT): STATE = containerContract.reduce(state, intent)
 	protected open suspend fun handleIntent(intent: INTENT) {}
 
 	protected fun updateState(block: STATE.() -> STATE) = container.updateState(block)
