@@ -10,12 +10,12 @@ val javaVersion: JavaVersion by rootProject.extra
 android {
     namespace = "com.bitsycore.demo.pulse"
 
-    compileSdk = 36
+    compileSdk = rootProject.extra["compileSdk"] as Int
 
     defaultConfig {
         applicationId = "com.bitsycore.demo.pulse"
-        minSdk = 26
-        targetSdk = 36
+        minSdk = rootProject.extra["minSdk"] as Int
+        targetSdk = rootProject.extra["targetSdk"] as Int
 
         versionCode = 1
         versionName = "1.0"
