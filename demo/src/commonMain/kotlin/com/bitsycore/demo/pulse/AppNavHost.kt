@@ -1,4 +1,4 @@
-package com.bitsycore.demo
+package com.bitsycore.demo.pulse
 
 import androidx.compose.animation.ContentTransform
 import androidx.compose.animation.core.tween
@@ -9,25 +9,34 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.retain.retain
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.runtime.toMutableStateList
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.navigation3.rememberViewModelStoreNavEntryDecorator
 import androidx.navigation3.runtime.NavEntry
 import androidx.navigation3.runtime.rememberSaveableStateHolderNavEntryDecorator
 import androidx.navigation3.ui.NavDisplay
-import com.bitsycore.demo.page1.Page1Screen
-import com.bitsycore.demo.page2.Page2Screen
+import com.bitsycore.demo.pulse.page1.Page1Screen
+import com.bitsycore.demo.pulse.page2.Page2Screen
 
 private const val DURATION = 500
 
@@ -35,7 +44,7 @@ private val forwardTransition: ContentTransform = ContentTransform(
 	slideInHorizontally(tween(DURATION)) { it }
 			+ scaleIn(tween(DURATION), initialScale = 0.85f),
 	scaleOut(tween(DURATION), targetScale = 0.5f)
-)
+			+ fadeOut(tween(DURATION)))
 
 private val popTransition: ContentTransform = ContentTransform(
 	scaleIn(tween(DURATION), initialScale = 0.85f)
@@ -57,28 +66,49 @@ private val tabs = listOf(
 
 @Composable
 fun AppNavHost() {
-	val backStack: SnapshotStateList<Route> = listOf<Route>(Route.Page1).toMutableStateList()
 
-	Column(Modifier.fillMaxSize().background(Color.Black)) {
-		NavDisplay(
-			backStack = backStack,
-			onBack = { backStack.removeLastOrNull() },
-			modifier = Modifier.weight(1f).fillMaxWidth(),
-			transitionSpec = { forwardTransition },
-			popTransitionSpec = { popTransition },
-			entryDecorators = listOf(
-				rememberSaveableStateHolderNavEntryDecorator(),
-				rememberViewModelStoreNavEntryDecorator()
-			),
-			entryProvider = { key ->
-				when (key) {
-					is Route.Page1 -> NavEntry(key) { Page1Screen() }
-					is Route.Page2 -> NavEntry(key) { Page2Screen() }
-				}
-			}
+	val backStack: SnapshotStateList<Route> = retain { listOf<Route>(Route.Page1).toMutableStateList() }
+	val snackbarHostState = remember { SnackbarHostState() }
+
+	Column(
+        Modifier.fillMaxSize()
+            .background(Color.Black)
+            .statusBarsPadding()
+	) {
+		Text(
+			"Pulse Demo",
+			style = MaterialTheme.typography.headlineMedium,
+			color = Color.White,
+			modifier = Modifier.fillMaxWidth().padding(16.dp)
 		)
 
+		Box(modifier = Modifier.weight(1f).fillMaxSize(), contentAlignment = Alignment.Center) {
+			NavDisplay(
+				backStack = backStack,
+				onBack = { backStack.removeLastOrNull() },
+				modifier = Modifier.fillMaxSize(),
+				transitionSpec = { forwardTransition },
+				popTransitionSpec = { popTransition },
+				predictivePopTransitionSpec = { popTransition },
+				entryDecorators = listOf(
+					rememberSaveableStateHolderNavEntryDecorator(),
+					rememberViewModelStoreNavEntryDecorator()
+				),
+				entryProvider = { key ->
+					when (key) {
+						is Route.Page1 -> NavEntry(key) { Page1Screen(snackbarHostState = snackbarHostState) }
+						is Route.Page2 -> NavEntry(key) { Page2Screen(snackbarHostState = snackbarHostState) }
+					}
+				}
+			)
+			SnackbarHost(
+				hostState = snackbarHostState,
+				modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+			)
+		}
+
 		NavigationBar(
+			modifier = Modifier.fillMaxWidth(),
 			containerColor = MaterialTheme.colorScheme.primaryContainer,
 			contentColor = MaterialTheme.colorScheme.onPrimaryContainer
 		) {

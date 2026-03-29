@@ -1,4 +1,4 @@
-package com.bitsycore.demo.page1
+package com.bitsycore.demo.pulse.page1
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.SizeTransform
@@ -9,7 +9,6 @@ import androidx.compose.animation.slideOutVertically
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -18,12 +17,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -36,7 +36,7 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bitsycore.demo.colorpicker.ColorPickerContent
+import com.bitsycore.demo.pulse.colorpicker.ColorPickerContent
 import com.bitsycore.lib.pulse.compose.collectAsState
 import com.bitsycore.lib.pulse.compose.collectEffect
 import com.bitsycore.lib.pulse.compose.onCompositionIntent
@@ -44,11 +44,10 @@ import com.bitsycore.lib.pulse.compose.onLifecycleIntent
 
 @Composable
 fun Page1Screen(
-	modifier: Modifier = Modifier,
+	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 	viewModel: Page1ViewModel = viewModel { Page1ViewModel(createSavedStateHandle()) }
 ) {
 	val state by viewModel.collectAsState()
-	val snackbarHostState = remember { SnackbarHostState() }
 
 	viewModel.onLifecycleIntent {
 		// Prefer Intent without lifecycle related name but for demo, simplify it
@@ -78,16 +77,10 @@ fun Page1Screen(
 		}
 	}
 
-	Box(modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
-		MainContent(
-			state = state,
-			dispatch = viewModel::dispatch
-		)
-		SnackbarHost(
-			hostState = snackbarHostState,
-			modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
-		)
-	}
+	MainContent(
+		state = state,
+		dispatch = viewModel::dispatch
+	)
 }
 
 @Composable
@@ -96,7 +89,10 @@ private fun MainContent(
 	dispatch: (Page1Contract.Intent) -> Unit
 ) {
 	Column(
-		modifier = Modifier.fillMaxSize(),
+		modifier = Modifier.fillMaxSize()
+			.background(MaterialTheme.colorScheme.background)
+			.verticalScroll(rememberScrollState())
+			.padding(vertical = 32.dp, horizontal = 8.dp),
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {

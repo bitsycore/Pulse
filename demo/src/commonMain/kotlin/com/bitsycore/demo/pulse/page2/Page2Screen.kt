@@ -1,14 +1,14 @@
-package com.bitsycore.demo.page2
+package com.bitsycore.demo.pulse.page2
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,11 +26,10 @@ import com.bitsycore.lib.pulse.compose.onLifecycleIntent
 
 @Composable
 fun Page2Screen(
-	modifier: Modifier = Modifier,
+	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 	viewModel: Page2ViewModel = viewModel { Page2ViewModel() }
 ) {
 	val state by viewModel.collectAsState()
-	val snackbarHostState = remember { SnackbarHostState() }
 
 	viewModel.onLifecycleIntent {
 		// Prefer Intent without lifecycle related name but for demo, simplify it
@@ -60,20 +59,17 @@ fun Page2Screen(
 		}
 	}
 
-	Box(modifier.fillMaxSize()) {
-		Column(
-			modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background),
-			horizontalAlignment = Alignment.CenterHorizontally,
-			verticalArrangement = Arrangement.Center
-		) {
-			Text(
-				text = state.message,
-				style = MaterialTheme.typography.headlineMedium
-			)
-		}
-		SnackbarHost(
-			hostState = snackbarHostState,
-			modifier = Modifier.align(Alignment.BottomCenter).padding(16.dp)
+	Column(
+		modifier = Modifier.fillMaxSize()
+			.background(MaterialTheme.colorScheme.background)
+			.verticalScroll(rememberScrollState())
+			.padding(vertical = 32.dp, horizontal = 8.dp),
+		horizontalAlignment = Alignment.CenterHorizontally,
+		verticalArrangement = Arrangement.Center
+	) {
+		Text(
+			text = state.message,
+			style = MaterialTheme.typography.headlineMedium
 		)
 	}
 }

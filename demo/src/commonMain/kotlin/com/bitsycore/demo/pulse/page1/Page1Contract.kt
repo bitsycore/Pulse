@@ -1,7 +1,7 @@
-package com.bitsycore.demo.page1
+package com.bitsycore.demo.pulse.page1
 
 import androidx.lifecycle.Lifecycle
-import com.bitsycore.demo.colorpicker.ColorPickerComponent
+import com.bitsycore.demo.pulse.colorpicker.ColorPickerComponent
 import com.bitsycore.lib.pulse.container.ContainerContract
 import com.bitsycore.lib.pulse.savedstate.PulseSavedStateViewModel
 import kotlinx.serialization.Serializable

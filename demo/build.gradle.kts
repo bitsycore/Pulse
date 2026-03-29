@@ -6,17 +6,39 @@ plugins {
 	alias(libs.plugins.kotlin.compose)
 	alias(libs.plugins.compose.multiplatform)
 	alias(libs.plugins.kotlin.serialization)
+	alias(libs.plugins.android.kotlin.multiplatform.library)
 }
 
 val javaVersion: JavaVersion by rootProject.extra
 
 kotlin {
 
+	// ================================
+	// MARK: Android
+	// ================================
+
+	android {
+		compileSdk = rootProject.extra["compileSdk"] as Int
+		minSdk = rootProject.extra["minSdk"] as Int
+		namespace = "com.bitsycore.demo.pulse.android"
+		compilerOptions {
+			jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
+		}
+	}
+
+	// ================================
+	// MARK: JVM
+	// ================================
+
 	jvm {
 		compilerOptions {
 			jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
 		}
 	}
+
+	// ================================
+	// MARK: Dependencies
+	// ================================
 
 	sourceSets {
 		commonMain.dependencies {
@@ -30,6 +52,7 @@ kotlin {
 			implementation(libs.jetbrains.androidx.lifecycle.viewmodel.compose)
 			implementation(libs.jetbrains.androidx.navigation3.ui)
 			implementation(libs.jetbrains.androidx.lifecycle.viewmodel.navigation3)
+			implementation(libs.jetbrains.compose.ui.tooling.preview)
 		}
 
 		jvmMain.dependencies {
@@ -41,7 +64,7 @@ kotlin {
 
 compose.desktop {
 	application {
-		mainClass = "com.bitsycore.demo.MainKt"
+		mainClass = "com.bitsycore.demo.pulse.MainKt"
 		nativeDistributions {
 			targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
 			packageName = "PulseDemo"

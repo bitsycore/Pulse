@@ -1,17 +1,15 @@
-package com.bitsycore.demo.page2
+package com.bitsycore.demo.pulse.page2
 
 import androidx.lifecycle.Lifecycle
-import com.bitsycore.demo.page2.Page2Contract.Intent
-import com.bitsycore.demo.page2.Page2Contract.UiState
 
 class Page2ViewModel : Page2Contract.VM(Page2Contract) {
 
-	override fun reduce(state: UiState, intent: Intent): UiState = state
+	override fun reduce(state: Page2Contract.UiState, intent: Page2Contract.Intent): Page2Contract.UiState = state
 
-	override suspend fun handleIntent(intent: Intent) {
+	override suspend fun handleIntent(intent: Page2Contract.Intent) {
 		when (intent) {
 			// Log all lifecycle events
-			is Intent.OnLifecycle -> {
+			is Page2Contract.Intent.OnLifecycle -> {
 				when(intent.event) {
 					Lifecycle.Event.ON_CREATE -> {
 						emitEffect(Page2Contract.Effect.ShowToast("onCreate"))
@@ -27,8 +25,8 @@ class Page2ViewModel : Page2Contract.VM(Page2Contract) {
             }
 
 			// Log all composition events
-			Intent.OnScreenEntered -> println("[Page2][Composition] onEnter")
-			Intent.OnScreenExited -> println("[Page2][Composition] onExit")
+			Page2Contract.Intent.OnScreenEntered -> println("[Page2][Composition] onEnter")
+			Page2Contract.Intent.OnScreenExited -> println("[Page2][Composition] onExit")
 		}
 	}
 

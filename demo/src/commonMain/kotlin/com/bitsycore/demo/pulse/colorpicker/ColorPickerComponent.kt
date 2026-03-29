@@ -1,4 +1,4 @@
-package com.bitsycore.demo.colorpicker
+package com.bitsycore.demo.pulse.colorpicker
 
 import com.bitsycore.lib.pulse.component.ComponentContract
 import kotlinx.serialization.Serializable

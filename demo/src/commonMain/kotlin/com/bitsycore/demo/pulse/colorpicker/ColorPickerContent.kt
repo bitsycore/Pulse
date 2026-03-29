@@ -1,4 +1,4 @@
-package com.bitsycore.demo.colorpicker
+package com.bitsycore.demo.pulse.colorpicker
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility

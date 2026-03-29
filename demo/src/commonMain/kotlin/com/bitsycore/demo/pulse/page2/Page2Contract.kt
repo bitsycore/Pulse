@@ -1,4 +1,4 @@
-package com.bitsycore.demo.page2
+package com.bitsycore.demo.pulse.page2
 
 import androidx.lifecycle.Lifecycle
 import com.bitsycore.lib.pulse.container.ContainerContract
