@@ -1,11 +1,10 @@
-package com.bitsycore.demo
+package com.bitsycore.demo.pulse
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Window
 import androidx.compose.ui.window.application
 import androidx.compose.ui.window.rememberWindowState
-import com.bitsycore.demo.pulse.AppNavHost
 
 fun main() = application {
 	Window(

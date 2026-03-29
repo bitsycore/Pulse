@@ -8,12 +8,12 @@ plugins {
 val javaVersion: JavaVersion by rootProject.extra
 
 android {
-    namespace = "com.bitsycore.demo.pulse"
+    namespace = "com.bitsycore.demo.pulse.android"
 
     compileSdk = rootProject.extra["compileSdk"] as Int
 
     defaultConfig {
-        applicationId = "com.bitsycore.demo.pulse"
+        applicationId = "com.bitsycore.demo.pulse.android"
         minSdk = rootProject.extra["minSdk"] as Int
         targetSdk = rootProject.extra["targetSdk"] as Int
 

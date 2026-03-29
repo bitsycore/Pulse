@@ -25,7 +25,7 @@ kotlin {
 	android {
 		compileSdk = rootProject.extra["compileSdk"] as Int
 		minSdk = rootProject.extra["minSdk"] as Int
-		namespace = "com.bitsycore.demo.pulse.android"
+		namespace = "com.bitsycore.demo.pulse"
 		compilerOptions {
 			jvmTarget = JvmTarget.fromTarget(javaVersion.toString())
 		}
