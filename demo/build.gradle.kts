@@ -67,6 +67,7 @@ kotlin {
 			implementation(libs.jetbrains.androidx.navigation3.ui)
 			implementation(libs.jetbrains.androidx.lifecycle.viewmodel.navigation3)
 			implementation(libs.jetbrains.compose.ui.tooling.preview)
+			implementation(libs.jetbrains.compose.ui.tooling)
 			implementation(libs.jetbrains.compose.components.resources)
 		}
 
