@@ -33,11 +33,9 @@ abstract class PulseSavedStateViewModel<STATE : Any, INTENT : Any, EFFECT : Any>
 	containerContract: ContainerContract<STATE, INTENT, EFFECT>,
 	private val savedStateHandle: SavedStateHandle,
 	private val serializer: KSerializer<STATE>,
-	private val savedStateKey: String = "PulseSavedStateViewModel::${containerContract::class}",
-	replayUnconsumedEffects: Int = 4
+	private val savedStateKey: String = "PulseSavedStateViewModel::${containerContract::class}"
 ) : PulseViewModel<STATE, INTENT, EFFECT>(
 	containerContract = containerContract,
-	replayUnconsumedEffects = replayUnconsumedEffects,
 	restoredState = savedStateHandle.get<String>(savedStateKey)?.let { json ->
 		runCatching { Json.decodeFromString(serializer, json) }.getOrNull()
 	}

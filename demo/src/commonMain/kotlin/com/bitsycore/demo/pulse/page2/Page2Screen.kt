@@ -33,7 +33,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.bitsycore.lib.pulse.compose.collectAsState
+import com.bitsycore.lib.pulse.compose.collectAsStateWithLifecycle
 import com.bitsycore.lib.pulse.compose.collectEffect
 import com.bitsycore.lib.pulse.compose.onCompositionIntent
 import com.bitsycore.lib.pulse.compose.onLifecycleIntent
@@ -45,7 +45,7 @@ fun Page2Screen(
 	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 	viewModel: Page2ViewModel = viewModel { Page2ViewModel() }
 ) {
-	val state by viewModel.collectAsState()
+	val state by viewModel.collectAsStateWithLifecycle()
 
 	viewModel.onLifecycleIntent {
 		// Prefer Intent without lifecycle related name but for demo, simplify it
@@ -74,7 +74,6 @@ fun Page2Screen(
 			}
 		}
 	}
-
 
 	LaunchedEffect(Unit) {
 		while (true) {

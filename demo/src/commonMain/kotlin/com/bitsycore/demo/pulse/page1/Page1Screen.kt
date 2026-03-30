@@ -40,7 +40,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.createSavedStateHandle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bitsycore.demo.pulse.colorpicker.ColorPickerContent
-import com.bitsycore.lib.pulse.compose.collectAsState
+import com.bitsycore.lib.pulse.compose.collectAsStateWithLifecycle
 import com.bitsycore.lib.pulse.compose.collectEffect
 import com.bitsycore.lib.pulse.compose.onCompositionIntent
 import com.bitsycore.lib.pulse.compose.onLifecycleIntent
@@ -50,7 +50,7 @@ fun Page1Screen(
 	snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 	viewModel: Page1ViewModel = viewModel { Page1ViewModel(createSavedStateHandle()) }
 ) {
-	val state by viewModel.collectAsState()
+	val state by viewModel.collectAsStateWithLifecycle()
 
 	viewModel.onLifecycleIntent {
 		// Prefer Intent without lifecycle related name but for demo, simplify it
@@ -66,7 +66,7 @@ fun Page1Screen(
 		onEnter { Page1Contract.Intent.OnScreenEntered }
 		onExit { Page1Contract.Intent.OnScreenExited }
 	}
-
+	
 	viewModel.collectEffect { effect ->
 		when (effect) {
 			is Page1Contract.Effect.ShowToast -> {

@@ -17,13 +17,13 @@ import com.bitsycore.lib.pulse.scopes.ComposeIntentScope
 import com.bitsycore.lib.pulse.scopes.LifecycleIntentScope
 
 @Composable
-fun <STATE : Any, INTENT : Any, EFFECT : Any> ContainerHost<STATE, INTENT, EFFECT>.collectAsState(
-	lifecycleState: Lifecycle.State = Lifecycle.State.STARTED
-) = stateFlow.collectAsStateWithLifecycle(minActiveState = lifecycleState)
+fun <STATE : Any, INTENT : Any, EFFECT : Any> ContainerHost<STATE, INTENT, EFFECT>.collectAsStateWithLifecycle(
+	minActiveState: Lifecycle.State = Lifecycle.State.STARTED
+) = stateFlow.collectAsStateWithLifecycle(minActiveState = minActiveState)
 
 @Suppress("ComposableNaming")
 @Composable
-fun <STATE : Any, INTENT : Any, EFFECT : Any> ContainerHost<STATE, INTENT, EFFECT>.collectEffect(
+fun <STATE : Any, INTENT : Any, EFFECT : Any> ContainerHost<STATE, INTENT, EFFECT>.collectEffectWithLifecycle(
 	lifecycleState: Lifecycle.State = Lifecycle.State.STARTED,
 	sideEffect: (suspend (sideEffect: EFFECT) -> Unit)
 ) {
@@ -33,6 +33,17 @@ fun <STATE : Any, INTENT : Any, EFFECT : Any> ContainerHost<STATE, INTENT, EFFEC
 		lifecycleOwner.lifecycle.repeatOnLifecycle(lifecycleState) {
 			effectFlow.collect { callback(it) }
 		}
+	}
+}
+
+@Suppress("ComposableNaming")
+@Composable
+fun <STATE : Any, INTENT : Any, EFFECT : Any> ContainerHost<STATE, INTENT, EFFECT>.collectEffect(
+	sideEffect: (suspend (sideEffect: EFFECT) -> Unit)
+) {
+	val callback by rememberUpdatedState(newValue = sideEffect)
+	LaunchedEffect(Unit) {
+		effectFlow.collect { callback(it) }
 	}
 }
 
