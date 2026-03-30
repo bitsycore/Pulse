@@ -145,8 +145,8 @@ fun AppNavHost() {
 
 		NavigationBar(
 			modifier = Modifier.fillMaxWidth(),
-			containerColor = MaterialTheme.colorScheme.primaryContainer,
-			contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+			containerColor = Color.Black,
+			contentColor = Color.White
 		) {
 			tabs.forEach { (route, label) ->
 				NavigationBarItem(
@@ -159,15 +159,15 @@ fun AppNavHost() {
 							backStack.add(route)
 						}
 					},
-					icon = {},
+					icon = { Text("") },
 					label = { Text(label) },
 					colors = NavigationBarItemDefaults.colors(
-						selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
-						unselectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-						selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
-						unselectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
-						indicatorColor = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f)
-					)
+                        selectedIconColor = Color.White,
+                        unselectedIconColor = Color.White,
+                        selectedTextColor = Color.White,
+                        unselectedTextColor = Color.White,
+                        indicatorColor = Color.White,
+                    )
 				)
 			}
 		}
