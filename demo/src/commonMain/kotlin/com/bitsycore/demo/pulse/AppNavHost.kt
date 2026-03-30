@@ -22,6 +22,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
@@ -159,6 +160,14 @@ fun AppNavHost() {
 							backStack.add(route)
 						}
 					},
+					modifier = Modifier
+						.padding(
+							top = 8.dp,
+							bottom = 8.dp,
+							start = if (route == Route.Page1) 8.dp else 2.dp,
+							end = if (route == Route.Page1) 2.dp else 8.dp
+						)
+						.background(color = Color.White.copy(alpha = 0.2f), shape = RoundedCornerShape(8.dp)),
 					icon = { Text("") },
 					label = { Text(label) },
 					colors = NavigationBarItemDefaults.colors(
