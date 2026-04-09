@@ -2,18 +2,8 @@ package com.bitsycore.lib.pulse.container
 
 import com.bitsycore.lib.pulse.internal.ExperimentalPulse
 import com.bitsycore.lib.pulse.internal.UntypedIntentBuilderScope
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.yield
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 import kotlin.time.Duration
 
 /**
@@ -31,12 +21,12 @@ import kotlin.time.Duration
  *                        ↘ handleIntent() → async work → emitEffect() → Screen reacts
  */
 abstract class Container<STATE : Any, INTENT : Any, EFFECT : Any>(
-	containerContract: ContainerContract<STATE, INTENT, EFFECT>,
+	initialState: STATE,
 	val coroutineScope: CoroutineScope,
 	restoredState: STATE? = null
 ) : ContainerHost<STATE, INTENT, EFFECT> {
 
-	private val stateMutableFlow = MutableStateFlow(restoredState ?: containerContract.initialState)
+	private val stateMutableFlow = MutableStateFlow(restoredState ?: initialState)
 	override val stateFlow: StateFlow<STATE> = stateMutableFlow.asStateFlow()
 
 	private val effectMutableFlow = MutableSharedFlow<EFFECT>(extraBufferCapacity = 8)
@@ -45,7 +35,7 @@ abstract class Container<STATE : Any, INTENT : Any, EFFECT : Any>(
 	/** Entry point for all UI-originated actions. Thread-safe. */
 	override fun dispatch(intent: INTENT) {
 		stateMutableFlow.update { reduce(it, intent) }
-		coroutineScope.launch { yield(); handleIntent(intent) }
+		coroutineScope.launch { handleIntent(intent) }
 	}
 
 	@ExperimentalPulse
@@ -130,7 +120,7 @@ abstract class Container<STATE : Any, INTENT : Any, EFFECT : Any>(
 
 	/** Emits a one-time effect to the screen. Thread-safe */
 	fun emitEffect(effect: EFFECT) {
-		coroutineScope.launch { effectMutableFlow.emit(effect) }
+		coroutineScope.launch { yield(); effectMutableFlow.emit(effect) }
 	}
 
 	/** Convenience for updating state outside of the reducer (e.g., inside callbacks). */

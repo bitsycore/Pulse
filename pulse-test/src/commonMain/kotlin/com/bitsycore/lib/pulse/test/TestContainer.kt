@@ -22,12 +22,13 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 @OptIn(ExperimentalCoroutinesApi::class)
 class TestContainer<STATE : Any, INTENT : Any, EFFECT : Any>(
 	contract: ContainerContract<STATE, INTENT, EFFECT>,
-	private val testScope: TestScope = TestScope(UnconfinedTestDispatcher()),
+	initialState: STATE,
+	testScope: TestScope = TestScope(UnconfinedTestDispatcher()),
 	private val reducer: (STATE, INTENT) -> STATE = { state, _ -> state },
-	private val intentHandler: suspend TestContainer<STATE, INTENT, EFFECT>.(INTENT) -> Unit = {}
-) : Container<STATE, INTENT, EFFECT>(contract, testScope, restoredState = null) {
+	private val intentHandler: suspend TestContainer<STATE, INTENT, EFFECT>.(INTENT) -> Unit = {},
+) : Container<STATE, INTENT, EFFECT>(initialState, testScope, restoredState = null) {
 
 	override fun reduce(state: STATE, intent: INTENT): STATE = reducer(state, intent)
-
 	override suspend fun handleIntent(intent: INTENT) = intentHandler(intent)
+
 }

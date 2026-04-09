@@ -16,7 +16,6 @@ import kotlin.time.Duration.Companion.milliseconds
 // ── Test Contract ──────────────────────────────────────────────────────────────
 
 private object CounterContract : ContainerContract<CounterContract.UiState, CounterContract.Intent, CounterContract.Effect>() {
-	override val initialState = UiState()
 
 	data class UiState(val count: Int = 0, val label: String = "")
 
@@ -41,6 +40,7 @@ class ContainerTest {
 
 	@Test
 	fun initialStateIsContractDefault() = CounterContract.containerTest(
+		CounterContract.UiState(),
 		reduce = { state, _ -> state }
 	) {
 		assertState(CounterContract.UiState())
@@ -50,7 +50,8 @@ class ContainerTest {
 	fun restoredStateOverridesInitial() = runTest {
 		val restored = CounterContract.UiState(count = 42, label = "restored")
 		val container = TestContainer(
-			contract = CounterContract,
+			CounterContract,
+			initialState = CounterContract.UiState(),
 			testScope = this,
 			reducer = { state, _ -> state },
 		)
@@ -63,6 +64,7 @@ class ContainerTest {
 
 	@Test
 	fun dispatchUpdatesState() = CounterContract.containerTest(
+		CounterContract.UiState(),
 		reduce = { state, intent ->
 			when (intent) {
 				CounterContract.Intent.Increment -> state.copy(count = state.count + 1)
@@ -82,6 +84,7 @@ class ContainerTest {
 
 	@Test
 	fun decrementBelowZero() = CounterContract.containerTest(
+		CounterContract.UiState(),
 		reduce = { state, intent ->
 			when (intent) {
 				CounterContract.Intent.Decrement -> state.copy(count = state.count - 1)
@@ -95,6 +98,7 @@ class ContainerTest {
 
 	@Test
 	fun multipleIntentTypesReduceCorrectly() = CounterContract.containerTest(
+		CounterContract.UiState(),
 		reduce = { state, intent ->
 			when (intent) {
 				CounterContract.Intent.Increment -> state.copy(count = state.count + 1)
@@ -117,6 +121,7 @@ class ContainerTest {
 
 	@Test
 	fun emitEffectDeliversToCollector() = CounterContract.containerTest(
+		CounterContract.UiState(),
 		handleIntent = { intent ->
 			when (intent) {
 				CounterContract.Intent.Reset -> emitEffect(CounterContract.Effect.ShowToast("reset!"))
@@ -134,6 +139,7 @@ class ContainerTest {
 	fun collectEffectsGathersMultiple() = runTest {
 		val scope = this
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = scope,
 			intentHandler = { intent ->
@@ -158,6 +164,7 @@ class ContainerTest {
 	@Test
 	fun noEffectEmittedWhenNotTriggered() = runTest {
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
 			reducer = { state, intent ->
@@ -180,6 +187,7 @@ class ContainerTest {
 	@Test
 	fun lateCollectorReceivesReplayedEffect() = runTest {
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
 			intentHandler = { intent ->
@@ -201,6 +209,7 @@ class ContainerTest {
 	@Test
 	fun consumableEffectDeliveredOnlyOnce() = runTest {
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
 			intentHandler = { intent ->
@@ -235,14 +244,18 @@ class ContainerTest {
 	fun handleIntentCalledOnDispatch() = runTest {
 		val handledIntents = mutableListOf<CounterContract.Intent>()
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
-			intentHandler = { intent -> handledIntents.add(intent) }
+			intentHandler = {
+				intent -> handledIntents.add(intent)
+			}
 		)
 
 		container.dispatch(CounterContract.Intent.Increment)
 		container.dispatch(CounterContract.Intent.Reset)
 
+		// handleIntent is called asynchronously after reduce, so yield to allow it to run
 		yield()
 
 		assertEquals(2, handledIntents.size)
@@ -255,6 +268,7 @@ class ContainerTest {
 	@Test
 	fun debouncedDispatchOnlyFiresLast() = runTest {
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
 			reducer = { state, intent ->
@@ -278,6 +292,7 @@ class ContainerTest {
 	@Test
 	fun debouncedWithDifferentKeysFireIndependently() = runTest {
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
 			reducer = { state, intent ->
@@ -303,6 +318,7 @@ class ContainerTest {
 	fun debouncedSkipIfUnchanged() = runTest {
 		val handledIntents = mutableListOf<CounterContract.Intent>()
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
 			reducer = { state, intent ->
@@ -337,6 +353,7 @@ class ContainerTest {
 	@Test
 	fun debouncedShareAcrossTypes() = runTest {
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
 			reducer = { state, intent ->
@@ -361,7 +378,7 @@ class ContainerTest {
 			shareAcrossTypes = true
 		)
 
-		advanceTimeBy(150)
+		advanceTimeBy(150.milliseconds)
 
 		assertEquals(0, container.stateFlow.value.count, "Increment should have been cancelled")
 		assertEquals("wins", container.stateFlow.value.label, "SetLabel should have fired")
@@ -372,6 +389,7 @@ class ContainerTest {
 	@Test
 	fun updateStateModifiesStateDirectly() = runTest {
 		val container = TestContainer(
+			initialState = CounterContract.UiState(),
 			contract = CounterContract,
 			testScope = this,
 		)

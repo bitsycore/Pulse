@@ -2,13 +2,8 @@ package com.bitsycore.demo.pulse.page2
 
 import androidx.lifecycle.Lifecycle
 import com.bitsycore.lib.pulse.container.ContainerContract
-import com.bitsycore.lib.pulse.viewmodel.PulseViewModel
 
 object Page2Contract : ContainerContract<Page2Contract.UiState, Page2Contract.Intent, Page2Contract.Effect>() {
-
-	override val initialState = UiState()
-
-	typealias VM = PulseViewModel<UiState, Intent, Effect>
 
 	data class UiState(
 		val count: Int = 0,

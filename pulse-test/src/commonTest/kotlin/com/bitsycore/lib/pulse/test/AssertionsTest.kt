@@ -10,7 +10,6 @@ import kotlin.test.assertTrue
 // ── Minimal Contract for Assertion Tests ───────────────────────────────────────
 
 private object SimpleContract : ContainerContract<SimpleContract.UiState, SimpleContract.Intent, SimpleContract.Effect>() {
-	override val initialState = UiState()
 
 	data class UiState(val value: Int = 0)
 
@@ -30,6 +29,7 @@ class AssertionsTest {
 
 	@Test
 	fun assertStateWithExpectedValuePasses() = SimpleContract.containerTest(
+		SimpleContract.UiState(),
 		reduce = { state, intent ->
 			when (intent) {
 				SimpleContract.Intent.Up -> state.copy(value = state.value + 1)
@@ -41,7 +41,7 @@ class AssertionsTest {
 	}
 
 	@Test
-	fun assertStateWithExpectedValueFails() = SimpleContract.containerTest {
+	fun assertStateWithExpectedValueFails() = SimpleContract.containerTest(SimpleContract.UiState()) {
 		assertFailsWith<AssertionError> {
 			assertState(SimpleContract.UiState(value = 999))
 		}
@@ -49,6 +49,7 @@ class AssertionsTest {
 
 	@Test
 	fun assertStateWithPredicatePasses() = SimpleContract.containerTest(
+		SimpleContract.UiState(),
 		reduce = { state, intent ->
 			when (intent) {
 				SimpleContract.Intent.Up -> state.copy(value = state.value + 1)
@@ -61,7 +62,7 @@ class AssertionsTest {
 	}
 
 	@Test
-	fun assertStateWithPredicateFails() = SimpleContract.containerTest {
+	fun assertStateWithPredicateFails() = SimpleContract.containerTest(SimpleContract.UiState()) {
 		assertFailsWith<AssertionError> {
 			assertState("value should be positive") { it.value > 0 }
 		}
@@ -69,6 +70,7 @@ class AssertionsTest {
 
 	@Test
 	fun containerTestDslProvidesWorkingContainer() = SimpleContract.containerTest(
+		SimpleContract.UiState(),
 		reduce = { state, intent ->
 			when (intent) {
 				SimpleContract.Intent.Up -> state.copy(value = state.value + 1)
@@ -94,6 +96,7 @@ class AssertionsTest {
 
 	@Test
 	fun awaitEffectReturnsCorrectEffect() = SimpleContract.containerTest(
+		SimpleContract.UiState(),
 		handleIntent = { intent ->
 			when (intent) {
 				SimpleContract.Intent.Up -> emitEffect(SimpleContract.Effect.Notify("hello"))

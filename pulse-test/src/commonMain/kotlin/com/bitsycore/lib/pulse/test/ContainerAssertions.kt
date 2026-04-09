@@ -93,12 +93,14 @@ suspend fun <EFFECT : Any> ContainerHost<*, *, EFFECT>.awaitEffect(
  * ```
  */
 fun <STATE : Any, INTENT : Any, EFFECT : Any> com.bitsycore.lib.pulse.container.ContainerContract<STATE, INTENT, EFFECT>.containerTest(
+	initialState: STATE,
 	reduce: (STATE, INTENT) -> STATE = { state, _ -> state },
 	handleIntent: suspend TestContainer<STATE, INTENT, EFFECT>.(INTENT) -> Unit = {},
 	block: suspend TestContainer<STATE, INTENT, EFFECT>.() -> Unit
 ) = runTest {
 	val container = TestContainer(
-		contract = this@containerTest,
+		this@containerTest,
+		initialState = initialState,
 		testScope = this,
 		reducer = reduce,
 		intentHandler = handleIntent

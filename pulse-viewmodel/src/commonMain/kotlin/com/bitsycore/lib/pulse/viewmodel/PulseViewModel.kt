@@ -19,7 +19,9 @@ abstract class PulseViewModel<STATE : Any, INTENT : Any, EFFECT : Any>(
 	override val effectFlow: Flow<EFFECT> get() = container.effectFlow
 	override val stateFlow: StateFlow<STATE> get() = container.stateFlow
 
-	private val container = object : Container<STATE, INTENT, EFFECT>(containerContract, viewModelScope, restoredState) {
+	protected abstract val initialState : STATE
+
+	private val container = object : Container<STATE, INTENT, EFFECT>( initialState, viewModelScope, restoredState) {
 		override suspend fun handleIntent(intent: INTENT) = this@PulseViewModel.handleIntent(intent)
 		override fun reduce(state: STATE, intent: INTENT): STATE = this@PulseViewModel.reduce(state, intent)
 	}
