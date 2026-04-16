@@ -3,10 +3,10 @@ package com.bitsycore.demo.pulse.page2
 import androidx.lifecycle.Lifecycle
 import com.bitsycore.lib.pulse.viewmodel.PulseViewModel
 
-class Page2ViewModel : PulseViewModel<Page2Contract.UiState, Page2Contract.Intent, Page2Contract.Effect>(Page2Contract) {
-
-	override val initialState: Page2Contract.UiState
-		get() = Page2Contract.UiState()
+class Page2ViewModel : PulseViewModel<Page2Contract.UiState, Page2Contract.Intent, Page2Contract.Effect>(
+	Page2Contract,
+	Page2Contract.UiState(),
+) {
 
 	override suspend fun handleIntent(intent: Page2Contract.Intent) {
 		when (intent) {

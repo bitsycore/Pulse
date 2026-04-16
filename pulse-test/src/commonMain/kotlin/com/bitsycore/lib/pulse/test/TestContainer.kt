@@ -26,7 +26,7 @@ class TestContainer<STATE : Any, INTENT : Any, EFFECT : Any>(
 	testScope: TestScope = TestScope(UnconfinedTestDispatcher()),
 	private val reducer: (STATE, INTENT) -> STATE = { state, _ -> state },
 	private val intentHandler: suspend TestContainer<STATE, INTENT, EFFECT>.(INTENT) -> Unit = {},
-) : Container<STATE, INTENT, EFFECT>(initialState, testScope, restoredState = null) {
+) : Container<STATE, INTENT, EFFECT>(contract, initialState, restoredState = null, testScope) {
 
 	override fun reduce(state: STATE, intent: INTENT): STATE = reducer(state, intent)
 	override suspend fun handleIntent(intent: INTENT) = intentHandler(intent)

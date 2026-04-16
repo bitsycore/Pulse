@@ -6,8 +6,7 @@ import kotlin.test.assertEquals
 
 // ── Test Component ─────────────────────────────────────────────────────────────
 
-private object ColorComponent : ComponentContract<ColorComponent.State, ColorComponent.Intent>() {
-	override val initialState = State()
+private object ColorComponent : ComponentContract<ColorComponent.State, ColorComponent.Intent>(State()) {
 
 	data class State(
 		val red: Float = 0f,

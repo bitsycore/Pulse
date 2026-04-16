@@ -3,16 +3,15 @@ package com.bitsycore.demo.pulse.page1
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.SavedStateHandle
 import com.bitsycore.lib.pulse.savedstate.PulseSavedStateViewModel
+import kotlinx.serialization.serializer
 
 class Page1ViewModel(savedStateHandle: SavedStateHandle) :
 	PulseSavedStateViewModel<Page1Contract.UiState, Page1Contract.Intent, Page1Contract.Effect>(
+		initialState = Page1Contract.UiState(count = savedStateHandle.toString().length),
 		containerContract = Page1Contract,
 		savedStateHandle = savedStateHandle,
-		serializer = Page1Contract.UiState.serializer()
+		serializer = serializer<Page1Contract.UiState>()
 	) {
-
-	override val initialState: Page1Contract.UiState
-		get() = Page1Contract.UiState()
 
 	override suspend fun handleIntent(intent: Page1Contract.Intent) {
 		when (intent) {

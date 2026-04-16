@@ -2,8 +2,18 @@ package com.bitsycore.lib.pulse.container
 
 import com.bitsycore.lib.pulse.internal.ExperimentalPulse
 import com.bitsycore.lib.pulse.internal.UntypedIntentBuilderScope
-import kotlinx.coroutines.*
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.yield
 import kotlin.time.Duration
 
 /**
@@ -21,9 +31,10 @@ import kotlin.time.Duration
  *                        ↘ handleIntent() → async work → emitEffect() → Screen reacts
  */
 abstract class Container<STATE : Any, INTENT : Any, EFFECT : Any>(
+	val containerContract: ContainerContract<STATE, INTENT, EFFECT>,
 	initialState: STATE,
+	restoredState: STATE? = null,
 	val coroutineScope: CoroutineScope,
-	restoredState: STATE? = null
 ) : ContainerHost<STATE, INTENT, EFFECT> {
 
 	private val stateMutableFlow = MutableStateFlow(restoredState ?: initialState)
@@ -84,6 +95,7 @@ abstract class Container<STATE : Any, INTENT : Any, EFFECT : Any>(
 	 *
 	 * @see dispatch For immediate, non-debounced dispatch.
 	 */
+	@ExperimentalPulse
 	override fun dispatchDebounced(
 		intent: INTENT,
 		delay: Duration,
@@ -113,7 +125,7 @@ abstract class Container<STATE : Any, INTENT : Any, EFFECT : Any>(
 	}
 
 	/** Pure, synchronous state reducer. Override to handle state transitions. */
-	protected open fun reduce(state: STATE, intent: INTENT): STATE = state
+	protected open fun reduce(state: STATE, intent: INTENT): STATE = containerContract.reduce(state, intent)
 
 	/** Long operation handler. Override to perform async work (network, NFC, etc.). */
 	protected open suspend fun handleIntent(intent: INTENT) {}

@@ -11,7 +11,7 @@ kotlin = "2.3.20"
 
 # KotlinX
 kotlinxCoroutines = "1.10.2"
-kotlinxSerialization = "1.10.0"
+kotlinxSerialization = "1.11.0"
 
 # Compose
 composeMultiplatform = "1.10.3"
@@ -25,7 +25,7 @@ androidxNavigation3 = "1.0.0-alpha06"
 # MARK: Android
 
 # Base Config
-agp = "9.1.0"
+agp = "9.1.1"
 
 # AndroidX
 androidxActivity = "1.13.0"
