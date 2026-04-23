@@ -20,7 +20,7 @@ import kotlinx.coroutines.launch
  * ```
  */
 @PulseDsl
-class UntypedIntentBuilderScope<STATE : Any> internal constructor(
+class UntypedIntentBuilder<STATE : Any> internal constructor(
 	private val stateFlow: MutableStateFlow<STATE>,
 	private val coroutineScope: CoroutineScope,
 ) {

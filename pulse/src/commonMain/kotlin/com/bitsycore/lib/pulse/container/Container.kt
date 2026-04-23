@@ -1,7 +1,7 @@
 package com.bitsycore.lib.pulse.container
 
 import com.bitsycore.lib.pulse.internal.ExperimentalPulse
-import com.bitsycore.lib.pulse.internal.UntypedIntentBuilderScope
+import com.bitsycore.lib.pulse.internal.UntypedIntentBuilder
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -41,8 +41,8 @@ abstract class Container<STATE : Any, INTENT : Any, EFFECT : Any>(
 	}
 
 	@ExperimentalPulse
-	fun dispatchCustom(block: UntypedIntentBuilderScope<STATE>.() -> Unit) {
-		UntypedIntentBuilderScope(
+	fun dispatchCustom(block: UntypedIntentBuilder<STATE>.() -> Unit) {
+		UntypedIntentBuilder(
 			stateMutableFlow,
 			coroutineScope
 		).apply(block).build()
