@@ -39,7 +39,8 @@ demo → pulse-compose     → pulse
 
 - **ContainerContract** — declares `STATE`, `INTENT`, `EFFECT` types (no `initialState`; state is provided by the Container/ViewModel)
 - **Container** — core engine: takes `initialState` as constructor parameter; `dispatch(intent)` → `reduce()` → new state; `handleIntent()` for async side-effects; `emitEffect()` for one-shot events; supports `restoredState` for state restoration
-- **ContainerHost** — interface exposing `stateFlow`, `effectFlow`, `dispatch`, `dispatchDebounced`
+- **ContainerHost** — interface exposing `stateFlow`, `effectFlow`, `dispatch`
+- **DebouncedDispatcher** — standalone debounce engine: `dispatchDebounced()`, `cancel(key)`, `cancelAll()`, `clearHistory()`; thread-safe, composable with any dispatch function
 - **OneTimeConsumable** — thread-safe one-shot wrapper for effect replay without double-delivery
 - **ComponentContract** — lightweight sub-container with its own reducer (no effects)
 - **PulseViewModel** — AndroidX ViewModel wrapper around Container

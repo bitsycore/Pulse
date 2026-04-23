@@ -141,7 +141,15 @@ flowchart LR
 - `handleIntent(intent)` -- Suspend function for async work (network, database, etc.).
 - `emitEffect(effect)` -- Emits a one-shot event. Replay-safe: late collectors receive the last unconsumed effect without double-delivery.
 - `updateState { copy(...) }` -- Convenience for modifying state outside the reducer (e.g., inside callbacks).
-- `dispatchDebounced(intent, delay)` -- Rate-limits rapid input (search fields, sliders). Configurable debounce key, skip-if-unchanged, and cross-type sharing.
+
+### DebouncedDispatcher
+
+Standalone debounce engine for rate-limiting rapid input. Not embedded in `Container` — create one and wire it to any dispatch function.
+
+- `dispatchDebounced(intent, delay)` -- Dispatches after a debounce window. Configurable debounce key, skip-if-unchanged, and cross-type sharing.
+- `cancel(key)` -- Cancels a pending debounce by key and clears its dispatch history.
+- `cancelAll()` -- Cancels all pending debounces and clears all dispatch history.
+- `clearHistory()` -- Resets the `skipIfUnchanged` history without cancelling pending debounces.
 
 ### ContainerContract
 
@@ -160,7 +168,6 @@ interface ContainerHost<STATE, INTENT, EFFECT> {
     val stateFlow: StateFlow<STATE>
     val effectFlow: Flow<EFFECT>
     fun dispatch(intent: INTENT)
-    fun dispatchDebounced(intent: INTENT, delay: Duration, ...)
 }
 ```
 
@@ -318,21 +325,75 @@ override fun reduce(state: UiState, intent: Intent): UiState = when (intent) {
 
 ## Debouncing
 
-Rate-limit rapid user input. Only the last intent within the delay window is dispatched.
+`DebouncedDispatcher` is a standalone debounce engine. Create one and wire it to any dispatch function — typically inside a ViewModel.
+
+### Setup
+
+```kotlin
+class SearchViewModel : PulseViewModel<UiState, Intent, Effect>(SearchContract) {
+    override val initialState = UiState()
+
+    private val debouncer = DebouncedDispatcher(viewModelScope, ::dispatch)
+
+    fun dispatchDebounced(intent: Intent, delay: Duration) =
+        debouncer.dispatchDebounced(intent, delay)
+
+    fun cancelDebounce(key: String) = debouncer.cancel(key)
+
+    override fun reduce(state: UiState, intent: Intent) = when (intent) {
+        is Intent.UpdateQuery -> state.copy(query = intent.query)
+        is Intent.Search -> state
+    }
+
+    override suspend fun handleIntent(intent: Intent) {
+        if (intent is Intent.Search) {
+            val results = api.search(intent.query)
+            updateState { copy(results = results) }
+        }
+    }
+}
+```
+
+### Usage in Compose
+
+```kotlin
+TextField(
+    value = state.query,
+    onValueChange = { query ->
+        dispatch(Intent.UpdateQuery(query))                                   // immediate UI update
+        viewModel.dispatchDebounced(Intent.Search(query), 300.milliseconds)   // debounced API call
+    }
+)
+```
+
+### Debounce options
 
 ```kotlin
 // Basic: debounce by intent type (default key)
-viewModel.dispatchDebounced(Intent.Search(query), delay = 300.milliseconds)
+debouncer.dispatchDebounced(Intent.Search(query), delay = 300.milliseconds)
 
 // Custom key: independent debounce per field
-viewModel.dispatchDebounced(Intent.UpdateName(name), delay = 300.milliseconds, key = "name")
-viewModel.dispatchDebounced(Intent.UpdateEmail(email), delay = 300.milliseconds, key = "email")
+debouncer.dispatchDebounced(Intent.UpdateName(name), delay = 300.milliseconds, key = "name")
+debouncer.dispatchDebounced(Intent.UpdateEmail(email), delay = 300.milliseconds, key = "email")
 
 // Skip unchanged: drop duplicate intents
-viewModel.dispatchDebounced(Intent.Search(query), delay = 300.milliseconds, skipIfUnchanged = true)
+debouncer.dispatchDebounced(Intent.Search(query), delay = 300.milliseconds, skipIfUnchanged = true)
 
 // Share across types: different intent types cancel each other
-viewModel.dispatchDebounced(Intent.Search(query), delay = 300.milliseconds, shareAcrossTypes = true)
+debouncer.dispatchDebounced(Intent.Search(query), delay = 300.milliseconds, shareAcrossTypes = true)
+```
+
+### Cancellation and history
+
+```kotlin
+// Cancel a specific debounce key (e.g., user cleared the search field)
+debouncer.cancel("search")
+
+// Cancel all pending debounces and reset history
+debouncer.cancelAll()
+
+// Reset skipIfUnchanged history without cancelling pending debounces
+debouncer.clearHistory()
 ```
 
 ## Testing

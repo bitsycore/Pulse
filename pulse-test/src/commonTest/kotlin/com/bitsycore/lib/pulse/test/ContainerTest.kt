@@ -5,13 +5,11 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.yield
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.milliseconds
 
 // ── Test Contract ──────────────────────────────────────────────────────────────
 
@@ -261,127 +259,6 @@ class ContainerTest {
 		assertEquals(2, handledIntents.size)
 		assertEquals(CounterContract.Intent.Increment, handledIntents[0])
 		assertEquals(CounterContract.Intent.Reset, handledIntents[1])
-	}
-
-	// ── Debounce ───────────────────────────────────────────────────────────────
-
-	@Test
-	fun debouncedDispatchOnlyFiresLast() = runTest {
-		val container = TestContainer(
-			initialState = CounterContract.UiState(),
-			contract = CounterContract,
-			testScope = this,
-			reducer = { state, intent ->
-				when (intent) {
-					CounterContract.Intent.Increment -> state.copy(count = state.count + 1)
-					else -> state
-				}
-			}
-		)
-
-		// Dispatch debounced 3 times rapidly — only last should fire
-		container.dispatchDebounced(CounterContract.Intent.Increment, 100.milliseconds)
-		container.dispatchDebounced(CounterContract.Intent.Increment, 100.milliseconds)
-		container.dispatchDebounced(CounterContract.Intent.Increment, 100.milliseconds)
-
-		advanceTimeBy(150)
-
-		assertEquals(1, container.stateFlow.value.count, "Only the last debounced dispatch should execute")
-	}
-
-	@Test
-	fun debouncedWithDifferentKeysFireIndependently() = runTest {
-		val container = TestContainer(
-			initialState = CounterContract.UiState(),
-			contract = CounterContract,
-			testScope = this,
-			reducer = { state, intent ->
-				when (intent) {
-					is CounterContract.Intent.SetLabel -> state.copy(label = intent.label)
-					CounterContract.Intent.Increment -> state.copy(count = state.count + 1)
-					else -> state
-				}
-			}
-		)
-
-		// Different intent types = different default debounce keys
-		container.dispatchDebounced(CounterContract.Intent.Increment, 100.milliseconds)
-		container.dispatchDebounced(CounterContract.Intent.SetLabel("test"), 100.milliseconds)
-
-		advanceTimeBy(150)
-
-		assertEquals(1, container.stateFlow.value.count)
-		assertEquals("test", container.stateFlow.value.label)
-	}
-
-	@Test
-	fun debouncedSkipIfUnchanged() = runTest {
-		val handledIntents = mutableListOf<CounterContract.Intent>()
-		val container = TestContainer(
-			initialState = CounterContract.UiState(),
-			contract = CounterContract,
-			testScope = this,
-			reducer = { state, intent ->
-				when (intent) {
-					is CounterContract.Intent.SetLabel -> state.copy(label = intent.label)
-					else -> state
-				}
-			},
-			intentHandler = { handledIntents.add(it) }
-		)
-
-		// First dispatch
-		container.dispatchDebounced(
-			CounterContract.Intent.SetLabel("same"),
-			100.milliseconds,
-			skipIfUnchanged = true
-		)
-		advanceTimeBy(150)
-
-		// Same intent again with skipIfUnchanged
-		container.dispatchDebounced(
-			CounterContract.Intent.SetLabel("same"),
-			100.milliseconds,
-			skipIfUnchanged = true
-		)
-		advanceTimeBy(150)
-
-		// Should have only handled once since intent was unchanged
-		assertEquals(1, handledIntents.size, "skipIfUnchanged should prevent duplicate dispatch")
-	}
-
-	@Test
-	fun debouncedShareAcrossTypes() = runTest {
-		val container = TestContainer(
-			initialState = CounterContract.UiState(),
-			contract = CounterContract,
-			testScope = this,
-			reducer = { state, intent ->
-				when (intent) {
-					CounterContract.Intent.Increment -> state.copy(count = state.count + 1)
-					is CounterContract.Intent.SetLabel -> state.copy(label = intent.label)
-					else -> state
-				}
-			}
-		)
-
-		// With shareAcrossTypes, different types share one debounce slot
-		// so SetLabel should cancel Increment
-		container.dispatchDebounced(
-			CounterContract.Intent.Increment,
-			100.milliseconds,
-			shareAcrossTypes = true
-		)
-		container.dispatchDebounced(
-			CounterContract.Intent.SetLabel("wins"),
-			100.milliseconds,
-			shareAcrossTypes = true
-		)
-
-		advanceTimeBy(150.milliseconds)
-
-		assertEquals(0, container.stateFlow.value.count, "Increment should have been cancelled")
-		assertEquals("wins", container.stateFlow.value.label, "SetLabel should have fired")
 	}
 
 	// ── UpdateState ────────────────────────────────────────────────────────────

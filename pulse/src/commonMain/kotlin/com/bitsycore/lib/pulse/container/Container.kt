@@ -3,18 +3,9 @@ package com.bitsycore.lib.pulse.container
 import com.bitsycore.lib.pulse.internal.ExperimentalPulse
 import com.bitsycore.lib.pulse.internal.UntypedIntentBuilderScope
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
-import kotlin.time.Duration
 
 /**
  * Base class for MVI ViewModels.
@@ -55,73 +46,6 @@ abstract class Container<STATE : Any, INTENT : Any, EFFECT : Any>(
 			stateMutableFlow,
 			coroutineScope
 		).apply(block).build()
-	}
-
-	private val debounceJobs = mutableMapOf<Any, Job>()
-	private val lastIntents = mutableMapOf<Any, INTENT>()
-
-	/**
-	 * Dispatches an [intent] with debouncing, delaying execution until [delay]
-	 * milliseconds have elapsed without another call for the same debounce key.
-	 *
-	 * Useful for rate-limiting rapid user input such as search fields, sliders,
-	 * or any repeated action where only the latest value matters.
-	 *
-	 * ### Debounce key resolution
-	 *
-	 * The debounce key determines which calls cancel each other. It is resolved
-	 * as follows (first match wins):
-	 *
-	 * | `ignoreTypeForKey` | `key`    | Resulting key              | Scope                       |
-	 * |--------------------|----------|----------------------------|-----------------------------|
-	 * | `true`             | non-null | `key`                      | All intents sharing that key|
-	 * | `true`             | `null`   | `Unit`                     | **All** debounced intents   |
-	 * | `false`            | non-null | `intent::class to key`     | Same type + same key        |
-	 * | `false` (default)  | `null`   | `intent::class`            | Same intent type            |
-	 *
-	 * @param intent The intent to dispatch after the debounce window.
-	 * @param key Optional string to further partition the debounce scope
-	 *   within (or across) intent types. For example, passing a field name
-	 *   lets multiple fields debounce independently.
-	 * @param delay The debounce window in [Duration].
-	 * @param skipIfUnchanged When `true`, the intent is silently dropped
-	 *   if it is [structurally equal][Any.equals] to the last dispatched
-	 *   intent for the same debounce key. Requires the intent to implement
-	 *   a meaningful [equals] (e.g., be a `data class`).
-	 * @param shareAcrossTypes When `true`, the intent's class is excluded
-	 *   from the debounce key, allowing different intent types to share a
-	 *   single debounce slot. Use with caution: if combined with a `null`
-	 *   [key], **every** debounced intent shares one slot.
-	 *
-	 * @see dispatch For immediate, non-debounced dispatch.
-	 */
-	@ExperimentalPulse
-	override fun dispatchDebounced(
-		intent: INTENT,
-		delay: Duration,
-		key: String?,
-		skipIfUnchanged: Boolean,
-		shareAcrossTypes: Boolean
-	) {
-		val debounceKey: Any = when {
-			shareAcrossTypes && key != null -> key
-			shareAcrossTypes -> Unit
-			key != null -> intent::class to key
-			else -> intent::class
-		}
-		coroutineScope.launch {
-			val last = lastIntents[debounceKey]
-			if (skipIfUnchanged && last == intent) return@launch
-
-			debounceJobs[debounceKey]?.cancel()
-			debounceJobs[debounceKey] = launch {
-				delay(delay)
-				lastIntents[debounceKey] = intent
-				dispatch(intent)
-			}.also { job ->
-				job.invokeOnCompletion { debounceJobs.remove(debounceKey) }
-			}
-		}
 	}
 
 	/** Pure, synchronous state reducer. Override to handle state transitions. */
